@@ -1,4 +1,4 @@
-<img width="400" src="https://github.com/user-attachments/assets/44bac428-01bb-4fe9-9d85-96cba7698bee" alt="Tor Logo with the onion and a crosshair on it"/>
+
 
 # Threat Hunt Report: Unauthorized TOR Usage
 - [Scenario Creation](https://github.com/lxmrtnz/threat-hunting-scenario-tor/blob/main/threat-hunting-scenario-tor-event-creation.md)
@@ -30,15 +30,15 @@ Searched for any file that had the string "tor" in it and discovered what looks 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents  
-| where DeviceName == "win10-lxmrtnz"  
-| where InitiatingProcessAccountName == "labuser"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2025-05-28T01:15:21.8376442Z)  
-| order by Timestamp desc  
-| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
+DeviceFileEvents
+| where DeviceName == "win10-lxmrtnz"
+| where FileName contains "tor" or FileName contains "firefox"
+| where InitiatingProcessAccountName == "labuser"
+| where Timestamp >= datetime(2025-05-28T01:15:21.8376442Z)
+| order by Timestamp desc
+| project Timestamp, DeviceName, ActionType, FolderPath, SHA256, account = InitiatingProcessAccountName, FileName
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+<img width="1212" alt="image" src="https://github.com/user-attachments/assets/a94e01c1-ac1f-46fd-944d-ed2f22835a94">
 
 ---
 
@@ -49,13 +49,13 @@ Searched for any `ProcessCommandLine` that contained the string "tor-browser-win
 **Query used to locate event:**
 
 ```kql
-
-DeviceProcessEvents  
-| where DeviceName == "win10-lxmrtnz"  
-| where ProcessCommandLine contains "tor-browser-windows"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+DeviceProcessEvents
+| where DeviceName == "win10-lxmrtnz"
+| where ProcessCommandLine contains "tor-browser-windows"
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine, AccountName
+| order by Timestamp desc
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1212" alt="image" src="https://github.com/user-attachments/assets/332f3306-1b3e-41da-934c-af735f6171cc">
 
 ---
 
@@ -66,13 +66,13 @@ Searched for any indication that user "labuser" actually opened the TOR browser.
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents  
-| where DeviceName == "win10-lxmrtnz"  
-| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine  
+DeviceProcessEvents
+| where DeviceName == "win10-lxmrtnz"
+| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")
+| project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine, AccountName
 | order by Timestamp desc
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b13707ae-8c2d-4081-a381-2b521d3a0d8f">
+<img width="1212" alt="image" src="https://github.com/user-attachments/assets/eab37aed-7cea-4884-b237-9e9e3aebcbf0">
 
 ---
 
@@ -91,7 +91,7 @@ DeviceNetworkEvents
 | project Timestamp, DeviceName, InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessFolderPath  
 | order by Timestamp desc
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/87a02b5b-7d12-4f53-9255-f5e750d0e3cb">
+<img width="1212" alt="image" src="https://github.com/user-attachments/assets/31e68056-fb71-4fd2-82dd-60e5f9e2f9ac">
 
 ---
 
